@@ -58,16 +58,6 @@ Challanges I encountered when implementing multithreaded world generation in my 
 
 **Solution:** Manage multiple worker instances in a worker pool
 
-
----
-
-# What is a Web Worker?
-
-"Web Workers makes it possible to run a script operation in a background thread separate from the main execution thread of a web application. The advantage of this is that laborious processing can be performed in a separate thread, allowing the main (usually the UI) thread to run without being blocked/slowed down."
-
-https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API
----
-layout: two-cols-header
 ---
 
 # Recipe Title: Deliciously Responsive Web Soup with Dedicated Web Worker Croutons
@@ -88,27 +78,35 @@ Web application in need of a performance boost.
 layout: quote
 ---
 
+# What is a Web Worker?
 
+"Web Workers makes it possible to run a script operation in a background thread separate from the main execution thread of a web application. The advantage of this is that laborious processing can be performed in a separate thread, allowing the main (usually the UI) thread to run without being blocked/slowed down."
+
+https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API
+---
+layout: two-cols-header
+---
 
 # Difference between Workers
 https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API
 
 ::left::
-## Dedicated Workers
+## Dedicated / Shared Workers
 - run in a separate execution context
+- don't support direct DOM manipulation
+- are used for simple background tasks
 - die as soon as page is closed
 - support ES modules
 - don't support caching
-- don't support direct DOM manipulation
 
 ::right::
 ## Service Workers
-- run in a separate thread 
-- are long lived
-- act as a proxy between application, browser and network
-- support caching
-- support ES modules
+- run in a separate execution context
 - don't support direct DOM manipulation
+- act as a proxy between application, browser and network
+- are long lived
+- support ES modules
+- support caching
 
 ---
 layout: two-cols
