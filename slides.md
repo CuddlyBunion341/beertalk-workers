@@ -23,10 +23,7 @@ A guide on how to elevate client side performance with Worker APIs and custom Wo
 Beertalk by CuddlyBunion341
 @ Renuo AG
 
-<!-- Based on learnings from TSMC -->
-
 ---
-transition: fade-out
 layout: two-cols
 ---
 
@@ -70,11 +67,11 @@ Web application in need of a performance boost.
 - A pinch of JavaScript (JS) or TypeScript (TS) logic
 - API endpoints or data sources, finely chopped
 - Complex calculations or algorithms, to taste
-- User Interface (UI), freshly picked
 - Asynchronous tasks, seasoned with Promises or async/await
-- Optional: Encryption algorithms, image processing tasks, or file manipulations, according to preference
+- Optional: Transfer objects and Pools according to preference
 
 ---
+transition: slide-up
 layout: quote
 ---
 
@@ -109,42 +106,101 @@ https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API
 - support caching
 
 ---
-layout: two-cols
+
+# Basic example
+
+```js
+// my-worker.js
+
+self.onmessage = (message) => {
+  // perform expensive calculation on data
+  postMessage(result)
+}
+
+// index.js
+
+const worker = new Worker('my-worker.js')
+worker.postMessage(message)
+
+worker.onmessage = (message) => {
+  // do something with processed data
+}
+```
+
 ---
 
-# What is Slidev?
+<Transform :scale="0.95">
 
-Slidev is a slides maker and presenter designed for developers, consist of the following features
+```ts
+// TerrainGenerationWorker.ts
+import { ChunkData } from '../ChunkData'
+import { TerrainGenerator } from '../TerrainGenerator'
 
-- 📝 **Text-based** - focus on the content with Markdown, and then style them later
-- 🎨 **Themable** - theme can be shared and used with npm packages
-- 🧑‍💻 **Developer Friendly** - code highlighting, live coding with autocompletion
-- 🤹 **Interactive** - embedding Vue components to enhance your expressions
-- 🎥 **Recording** - built-in recording and camera view
-- 📤 **Portable** - export into PDF, PNGs, or even a hostable SPA
-- 🛠 **Hackable** - anything possible on a webpage
+self.onmessage = (message) => {
+  const { data } = message
+  const { chunkX, chunkY, chunkZ, chunkWidth, chunkHeight, chunkDepth, terrainGeneratorSeed } = data
 
-<br>
-<br>
+  const terrainGenerator = new TerrainGenerator(terrainGeneratorSeed)
+  const chunkData = new ChunkData(chunkWidth, chunkHeight, chunkDepth)
 
-Read more about [Why Slidev?](https://sli.dev/guide/why)
+  for (let x = -1; x < chunkWidth + 1; x++) {
+    for (let y = -1; y < chunkHeight + 1; y++) {
+      for (let z = -1; z < chunkDepth + 1; z++) {
+        const block = terrainGenerator.getBlock(
+          x + chunkX * chunkWidth,
+          y + chunkY * chunkHeight,
+          z + chunkZ * chunkDepth
+        )
+        chunkData.set(x, y, z, block)
+      }
+    }
+  }
 
-<!--
-You can have `style` tag in markdown to override the style for the current page.
-Learn more: https://sli.dev/guide/syntax#embedded-styles
--->
+  const arrayBuffer = chunkData.data.data.buffer
 
-<style>
-h1 {
-  background-color: #2B90B6;
-  background-image: linear-gradient(45deg, #4EC5D4 10%, #146b8c 20%);
-  background-size: 100%;
-  -webkit-background-clip: text;
-  -moz-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  -moz-text-fill-color: transparent;
+  postMessage(arrayBuffer, [arrayBuffer])
 }
-</style>
+```
+
+</Transform>
+
+---
+
+<Transform :scale="1.0">
+
+```ts
+// Chunk.ts
+class Chunk {
+  ...
+  prepareGeneratorWorkerData() {
+    const payload = {
+      chunkX: this.x,
+      chunkY: this.y,
+      chunkZ: this.z,
+      chunkWidth: this.chunkData.width,
+      chunkHeight: this.chunkData.height,
+      chunkDepth: this.chunkData.depth,
+      terrainGeneratorSeed: this.terrainGenerator.seed
+    }
+
+    const transferable = [this.chunkData.data.data.buffer] // not used at the moment
+
+    const callback = (payload: { data: ArrayBuffer }) => {
+      this.chunkData.data.data = new Uint8Array(payload.data)
+    }
+
+    return { payload, transferable, callback }
+  }
+  ...
+}
+```
+
+</Transform>
+
+
+
+---
+
 
 <!--
 Here is another comment.
