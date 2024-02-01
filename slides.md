@@ -27,6 +27,24 @@ Beertalk by CuddlyBunion341
 
 ---
 transition: fade-out
+layout: two-cols
+---
+
+# When should you care about parallel execution?
+
+- Expensive client side operations
+- Tight render times
+- Expensive network calls
+- Video conversion
+- Real time data streaming
+- Complex Mathematical Calculations
+- Text analysis / processing
+- Big data processing on the client
+
+::right::
+
+![img](https://media.istockphoto.com/id/696935130/de/foto/komplexe-mathematische-formeln-auf-whiteboard-mathematik-und-naturwissenschaften-mit.jpg?s=2048x2048&w=is&k=20&c=0gtlcarZJ7kzQhyMs5GXaqDTjeFiU3xbyjfaKxb8RiI=)
+
 ---
 
 # What is Slidev?
