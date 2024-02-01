@@ -349,9 +349,16 @@ export default class Game implements Experience {
 
 ---
 layout: center
+---
+
+<img src="/cat.jpg" class="rounded shadow" />
+
+---
+layout: center
 class: text-center
 ---
 
 # More about Web Workers
 
 [Mozilla Documentation](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API) · [TSMC GitHub](https://github.com/CuddlyBunion341/tsmc2) · [Blog by Max Peng](https://medium.com/techtrument/multithreading-javascript-46156179cf9a) · [Blog by Badmus Kola](https://www.honeybadger.io/blog/javascript-web-workers-multithreading/)
+
