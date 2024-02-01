@@ -12,7 +12,7 @@ info: |
 drawings:
   persist: false
 transition: slide-left
-title: Welcome to Slidev
+title: Cover Slide
 mdc: true
 ---
 
@@ -24,7 +24,8 @@ Beertalk by CuddlyBunion341
 @ Renuo AG
 
 ---
-layout: two-cols
+layout: image-right
+image: https://media.istockphoto.com/id/696935130/de/foto/komplexe-mathematische-formeln-auf-whiteboard-mathematik-und-naturwissenschaften-mit.jpg?s=2048x2048&w=is&k=20&c=0gtlcarZJ7kzQhyMs5GXaqDTjeFiU3xbyjfaKxb8RiI=
 ---
 
 # When should you care about parallel execution?
@@ -35,10 +36,6 @@ layout: two-cols
 - Video compression / encoding
 - Real time data streaming
 - Text analysis / processing
-
-::right::
-
-![img](https://media.istockphoto.com/id/696935130/de/foto/komplexe-mathematische-formeln-auf-whiteboard-mathematik-und-naturwissenschaften-mit.jpg?s=2048x2048&w=is&k=20&c=0gtlcarZJ7kzQhyMs5GXaqDTjeFiU3xbyjfaKxb8RiI=)
 
 ---
 
@@ -56,19 +53,24 @@ Challanges I encountered when implementing multithreaded world generation in my 
 **Solution:** Manage multiple worker instances in a worker pool
 
 ---
+layout: image-right
+image: https://images.pexels.com/photos/1872903/pexels-photo-1872903.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2
+---
 
-# Recipe Title: Deliciously Responsive Web Soup with Dedicated Web Worker Croutons
+# Multithreaded Dish
+
+**Recipe Title:** Deliciously Responsive Web Soup with Dedicated Web Worker Croutons
 
 ## Serves
 Web application in need of a performance boost.
 
 ## Ingredients
-- At least one dedicated web worker
+- At least one dedicated or shared web worker
 - A pinch of JavaScript (JS) or TypeScript (TS) logic
 - API endpoints or data sources, finely chopped
 - Complex calculations or algorithms, to taste
-- Asynchronous tasks, seasoned with Promises or async/await
-- Optional: Transfer objects and Pools according to preference
+<!-- - Asynchronous tasks, seasoned with Promises or async/await -->
+- Optional: Transfer objects and Managers according to preference
 
 ---
 transition: slide-up
@@ -86,6 +88,7 @@ layout: two-cols-header
 
 # Difference between Workers
 https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API
+
 
 ::left::
 ## Dedicated / Shared Workers
@@ -129,6 +132,37 @@ worker.onmessage = (message) => {
 
 ---
 
+# Terrain Generation Example
+
+```ts
+// Chunk.ts
+class Chunk {
+  ...
+  prepareGeneratorWorkerData() {
+    const payload = {
+      chunkX: this.x,
+      chunkY: this.y,
+      chunkZ: this.z,
+      chunkWidth: this.chunkData.width,
+      chunkHeight: this.chunkData.height,
+      chunkDepth: this.chunkData.depth,
+      terrainGeneratorSeed: this.terrainGenerator.seed
+    }
+
+    const transferable = [this.chunkData.data.data.buffer] // not used at the moment
+
+    const callback = (payload: { data: ArrayBuffer }) => {
+      this.chunkData.data.data = new Uint8Array(payload.data)
+    }
+
+    return { payload, transferable, callback }
+  }
+  ...
+}
+```
+
+---
+
 <Transform :scale="0.95">
 
 ```ts
@@ -136,7 +170,7 @@ worker.onmessage = (message) => {
 import { ChunkData } from '../ChunkData'
 import { TerrainGenerator } from '../TerrainGenerator'
 
-self.onmessage = (message) => {
+self.onmessage = (message: any) => {
   const { data } = message
   const { chunkX, chunkY, chunkZ, chunkWidth, chunkHeight, chunkDepth, terrainGeneratorSeed } = data
 
@@ -166,55 +200,58 @@ self.onmessage = (message) => {
 
 ---
 
-<Transform :scale="1.0">
+# Potential improvements at first glance
 
-```ts
-// Chunk.ts
-class Chunk {
-  ...
-  prepareGeneratorWorkerData() {
-    const payload = {
-      chunkX: this.x,
-      chunkY: this.y,
-      chunkZ: this.z,
-      chunkWidth: this.chunkData.width,
-      chunkHeight: this.chunkData.height,
-      chunkDepth: this.chunkData.depth,
-      terrainGeneratorSeed: this.terrainGenerator.seed
-    }
+1. Implement Chunk serialization / deserialization in Chunk class.
+1. Extract Worker logic into separate class?
+1. Reduce memory allocation by using existing Buffer objects.
+1. Initialize Worker with world seed.
 
-    const transferable = [this.chunkData.data.data.buffer] // not used at the moment
-
-    const callback = (payload: { data: ArrayBuffer }) => {
-      this.chunkData.data.data = new Uint8Array(payload.data)
-    }
-
-    return { payload, transferable, callback }
-  }
-  ...
-}
-```
-
-</Transform>
-
-
+![image](https://images.pexels.com/photos/3854816/pexels-photo-3854816.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2)
 
 ---
+transition: slide-up
+---
 
+# Before / After
+Note that chunk meshing is not parallelized, only terrain generation is.
 
-<!--
-Here is another comment.
--->
+<div grid="~ cols-2 gap-4">
+<img src="/before.gif" class="rounded shadow" />
+<img src="/before_pool.gif" class="rounded shadow" />
+</div>
+
+---
+layout: image-right
+image: https://images.pexels.com/photos/220996/pexels-photo-220996.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2
+---
+
+# Observation
+One problem solved, one more to go.
+
+1. Chunk generation no longer impedes rendering.
+1. The loading screen is gone.
+1. Terrain generation is "parallel" but could be "paralleler"
+1. World generation became slower.
+1. Workers are not getting utilized enough.
+
+---
+layout: image-left
+image: https://images.pexels.com/photos/8783845/pexels-photo-8783845.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2
+---
+
+# Solution
+
+1. Implement a Worker Manager.
+1. Store a list of active / inactive workers.
+1. Queue tasks when no worker is available.
+1. Figure out how many workers can be used at once.
 
 ---
 layout: default
 ---
 
 # Table of contents
-
-```html
-<Toc minDepth="1" maxDepth="1"></Toc>
-```
 
 <Toc maxDepth="1"></Toc>
 
