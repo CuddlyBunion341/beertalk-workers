@@ -32,19 +32,86 @@ layout: two-cols
 
 # When should you care about parallel execution?
 
-- Expensive client side operations
-- Tight render times
-- Expensive network calls
-- Video conversion
-- Real time data streaming
 - Complex Mathematical Calculations
-- Text analysis / processing
 - Big data processing on the client
+- Expensive network calls
+- Video compression / encoding
+- Real time data streaming
+- Text analysis / processing
 
 ::right::
 
 ![img](https://media.istockphoto.com/id/696935130/de/foto/komplexe-mathematische-formeln-auf-whiteboard-mathematik-und-naturwissenschaften-mit.jpg?s=2048x2048&w=is&k=20&c=0gtlcarZJ7kzQhyMs5GXaqDTjeFiU3xbyjfaKxb8RiI=)
 
+---
+
+# My Problems and Solutions
+Challanges I encountered when implementing multithreaded world generation in my [minecraft clone](https://github.com/CuddlyBunion341/tsmc2).
+
+## Render Performance
+**Problem:** Frametimes were greatly hindered while world was generating.
+
+**Solution:** Move terrain generation to dedicated worker.
+
+## Generation time
+**Problem**: It took > 30s to generate chunks in render distance of player
+
+**Solution:** Manage multiple worker instances in a worker pool
+
+
+---
+
+# What is a Web Worker?
+
+"Web Workers makes it possible to run a script operation in a background thread separate from the main execution thread of a web application. The advantage of this is that laborious processing can be performed in a separate thread, allowing the main (usually the UI) thread to run without being blocked/slowed down."
+
+https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API
+---
+layout: two-cols-header
+---
+
+# Recipe Title: Deliciously Responsive Web Soup with Dedicated Web Worker Croutons
+
+## Serves
+Web application in need of a performance boost.
+
+## Ingredients
+- At least one dedicated web worker
+- A pinch of JavaScript (JS) or TypeScript (TS) logic
+- API endpoints or data sources, finely chopped
+- Complex calculations or algorithms, to taste
+- User Interface (UI), freshly picked
+- Asynchronous tasks, seasoned with Promises or async/await
+- Optional: Encryption algorithms, image processing tasks, or file manipulations, according to preference
+
+---
+layout: quote
+---
+
+
+
+# Difference between Workers
+https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API
+
+::left::
+## Dedicated Workers
+- run in a separate execution context
+- die as soon as page is closed
+- support ES modules
+- don't support caching
+- don't support direct DOM manipulation
+
+::right::
+## Service Workers
+- run in a separate thread 
+- are long lived
+- act as a proxy between application, browser and network
+- support caching
+- support ES modules
+- don't support direct DOM manipulation
+
+---
+layout: two-cols
 ---
 
 # What is Slidev?
