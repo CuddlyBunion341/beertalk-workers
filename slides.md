@@ -245,7 +245,76 @@ image: https://images.pexels.com/photos/8783845/pexels-photo-8783845.jpeg?auto=c
 1. Implement a Worker Manager.
 1. Store a list of active / inactive workers.
 1. Queue tasks when no worker is available.
-1. Figure out how many workers can be used at once.
+1. Figure out how many workers can be utilized at once via navigator.
+
+---
+
+```ts{11-12|4-8,14|16-25|27-47|30,46|32-35|37-44|49-54}{maxHeight:'100%'}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type Callback = (args: any) => void
+
+export type WorkerTask = {
+  payload: unknown
+  transferable?: Transferable[]
+  callback: Callback
+}
+
+export class WorkerManager {
+  public idleWorkers: Worker[] = []
+  public activeWorkers: Worker[] = []
+
+  public taskQueue: WorkerTask[] = []
+
+  constructor(public readonly scriptUrl: string, public readonly workerCount: number) {
+    this.initializeWebWorkers()
+  }
+
+  public initializeWebWorkers() {
+    for (let i = 0; i < this.workerCount; i++) {
+      const worker = new Worker(this.scriptUrl, { type: 'module' })
+      this.idleWorkers.push(worker)
+    }
+  }
+
+  public enqueueTask(task: WorkerTask) {
+    const { payload, callback, transferable } = task
+
+    const idleWorker = this.idleWorkers.pop()
+
+    if (!idleWorker) {
+      this.taskQueue.push(task)
+      return
+    }
+
+    idleWorker.postMessage(payload, transferable || [])
+    idleWorker.onmessage = (message: unknown) => {
+      callback(message)
+      this.idleWorkers.push(idleWorker)
+      requestAnimationFrame(() => {
+        this.enqueueTaskFromQueue()
+      })
+    }
+
+    this.activeWorkers.push(idleWorker)
+  }
+
+  public enqueueTaskFromQueue() {
+    if (this.taskQueue.length === 0) return
+
+    const task = this.taskQueue.shift()
+    if (task) this.enqueueTask(task)
+  }
+}
+```
+
+---
+
+# Before / After
+
+<div grid="~ cols-2 gap-4">
+<img src="/before_pool.gif" class="rounded shadow" />
+<img src="/after_pool.gif" class="rounded shadow" />
+</div>
 
 ---
 layout: default
