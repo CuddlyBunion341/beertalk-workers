@@ -40,7 +40,7 @@ image: https://media.istockphoto.com/id/696935130/de/foto/komplexe-mathematische
 ---
 
 # My Problems and Solutions
-Challanges I encountered when implementing multithreaded world generation in my [minecraft clone](https://github.com/CuddlyBunion341/tsmc2).
+Challanges I encountered when implementing world generation in my [minecraft clone](https://github.com/CuddlyBunion341/tsmc2).
 
 ## Render Performance
 **Problem:** Frametimes were greatly hindered while world was generating.
@@ -66,7 +66,7 @@ Web application in need of a performance boost.
 
 ## Ingredients
 - At least one dedicated or shared web worker
-- A pinch of JavaScript (JS) or TypeScript (TS) logic
+- A pinch of JavaScript or TypeScript logic
 - API endpoints or data sources, finely chopped
 - Complex calculations or algorithms, to taste
 <!-- - Asynchronous tasks, seasoned with Promises or async/await -->
@@ -230,7 +230,7 @@ image: https://images.pexels.com/photos/220996/pexels-photo-220996.jpeg?auto=com
 One problem solved, one more to go.
 
 1. Chunk generation no longer impedes rendering.
-1. The loading screen is gone.
+1. The loading screen is **gone**.
 1. Terrain generation is "parallel" but could be "paralleler"
 1. World generation became slower.
 1. Workers are not getting utilized enough.
@@ -309,11 +309,12 @@ export class WorkerManager {
 
 ---
 
-```ts{all|6}
+```ts{all|16-23}
 // main.ts
 export default class Game implements Experience {
   ...
   init() {
+    ...
     const workerPath = './src/game/world/workers/TerrainGenerationWorker.ts'
     const workerCount = navigator.hardwareConcurrency
 
